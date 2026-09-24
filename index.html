@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>عالم الأشكال والاتجاهات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FFF7EC;
+    --card:#FFFFFF;
+    --ink:#2D2A4A;
+    --ink-soft:#6B6685;
+    --coral:#FF6F5E;
+    --teal:#2FC1B8;
+    --sun:#FFC63C;
+    --violet:#7C6FF0;
+    --leaf:#57C27D;
+    --pink:#FF8FB1;
+    --blue:#4D96FF;
+    --border:#EDE4D3;
+    --ok-bg:#E4F8EC;
+    --ok-ink:#1F8C4C;
+    --bad-bg:#FFEAE6;
+    --bad-ink:#D6482F;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --cream:#1C1A2B; --card:#262440; --ink:#F4F1FF; --ink-soft:#B9B4D6; --border:#3A3757;
+      --ok-bg:#173A26; --ok-ink:#6FE3A0; --bad-bg:#3D2223; --bad-ink:#FF9483;
+    }
+  }
+  :root[data-theme="dark"]{
+    --cream:#1C1A2B; --card:#262440; --ink:#F4F1FF; --ink-soft:#B9B4D6; --border:#3A3757;
+    --ok-bg:#173A26; --ok-ink:#6FE3A0; --bad-bg:#3D2223; --bad-ink:#FF9483;
+  }
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--cream);
+    color:var(--ink);
+    font-family:'Tajawal',system-ui,sans-serif;
+    min-height:100%;
+    -webkit-tap-highlight-color:transparent;
+  }
+  #app{max-width:760px;margin:0 auto;padding:18px 16px 40px;}
+
+  header.top{text-align:center;margin-bottom:18px;}
+  header.top h1{
+    font-size:clamp(24px,6vw,32px);
+    font-weight:900;
+    margin:6px 0 4px;
+    color:var(--violet);
+  }
+  header.top p{margin:0;color:var(--ink-soft);font-size:15px;font-weight:500;}
+
+  /* ---- home grid ---- */
+  #home{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .card{
+    background:var(--card);
+    border:2px solid var(--border);
+    border-radius:22px;
+    padding:18px 14px;
+    text-align:center;
+    cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease;
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+  }
+  .card:active{transform:scale(.96);}
+  .card .emoji{font-size:44px;line-height:1;}
+  .card h3{margin:2px 0 0;font-size:17px;font-weight:800;}
+  .card p{margin:0;font-size:12.5px;color:var(--ink-soft);font-weight:500;}
+  .card.c1{border-color:var(--coral);}
+  .card.c2{border-color:var(--teal);}
+  .card.c3{border-color:var(--sun);}
+  .card.c4{border-color:var(--violet);}
+  .card.c5{border-color:var(--pink);}
+  .card.c6{border-color:var(--leaf);}
+  .card.c7{border-color:var(--blue);}
+  .card.c8{border-color:var(--coral);}
+
+  .sectionLabel{
+    grid-column:1 / -1;
+    font-weight:800;font-size:14px;color:var(--ink-soft);
+    margin:6px 2px 0;text-align:right;
+  }
+
+  /* ---- game shell ---- */
+  #gameView{display:none;}
+  .gbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px;}
+  .backBtn{
+    background:var(--card);border:2px solid var(--border);border-radius:14px;
+    padding:9px 14px;font-family:inherit;font-weight:800;font-size:14px;color:var(--ink);
+    cursor:pointer;
+  }
+  .gtitle{font-weight:800;font-size:16px;color:var(--ink-soft);flex:1;text-align:center;}
+  .score{
+    background:var(--violet);color:#fff;font-weight:800;font-size:13px;
+    padding:8px 12px;border-radius:14px;white-space:nowrap;
+  }
+  .progressWrap{display:flex;gap:6px;justify-content:center;margin-bottom:16px;flex-wrap:wrap;}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--border);}
+  .dot.done{background:var(--leaf);}
+  .dot.now{background:var(--sun);transform:scale(1.3);}
+
+  .prompt{
+    text-align:center;font-size:clamp(18px,5vw,22px);font-weight:800;
+    margin:4px 0 18px;color:var(--ink);
+  }
+  .prompt b{color:var(--violet);}
+
+  .feedback{
+    text-align:center;font-weight:800;font-size:15px;
+    padding:10px;border-radius:14px;margin-top:14px;min-height:20px;
+    opacity:0;transform:translateY(6px);transition:all .18s ease;
+  }
+  .feedback.show{opacity:1;transform:translateY(0);}
+  .feedback.ok{background:var(--ok-bg);color:var(--ok-ink);}
+  .feedback.bad{background:var(--bad-bg);color:var(--bad-ink);}
+
+  /* ---- matching game ---- */
+  .matchGrid{display:flex;gap:16px;justify-content:center;}
+  .matchCol{display:flex;flex-direction:column;gap:12px;}
+  .shapeBtn{
+    width:78px;height:78px;border-radius:18px;border:2px solid var(--border);
+    background:var(--card);display:flex;align-items:center;justify-content:center;
+    cursor:pointer;transition:transform .12s ease, border-color .12s ease;
+    padding:8px;
+  }
+  .shapeBtn.selected{border-color:var(--violet);border-width:3px;transform:scale(1.05);}
+  .shapeBtn.matched{opacity:.35;pointer-events:none;}
+  .shapeBtn.shake{animation:shake .35s;}
+  @keyframes shake{
+    0%,100%{transform:translateX(0);}
+    25%{transform:translateX(-6px);}
+    75%{transform:translateX(6px);}
+  }
+
+  /* ---- naming game ---- */
+  .bigShapeWrap{display:flex;justify-content:center;margin-bottom:20px;}
+  .bigShapeWrap svg{width:150px;height:150px;}
+  .optGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .optBtn{
+    background:var(--card);border:2px solid var(--border);border-radius:16px;
+    padding:16px 10px;font-family:inherit;font-weight:800;font-size:16px;color:var(--ink);
+    cursor:pointer;transition:transform .12s ease;
+  }
+  .optBtn:active{transform:scale(.95);}
+  .optBtn.correct{background:var(--ok-bg);border-color:var(--ok-ink);color:var(--ok-ink);}
+  .optBtn.wrong{background:var(--bad-bg);border-color:var(--bad-ink);color:var(--bad-ink);}
+
+  /* ---- position scenes ---- */
+  .scene{
+    position:relative;height:190px;background:var(--card);
+    border:2px solid var(--border);border-radius:20px;margin-bottom:18px;
+    overflow:hidden;
+  }
+  .scene .anchor, .scene .anchor2{position:absolute;font-size:56px;}
+  .scene .mover{position:absolute;font-size:44px;transition:all .2s ease;}
+  .scene .lbl{position:absolute;bottom:6px;font-size:11px;color:var(--ink-soft);font-weight:700;left:0;right:0;text-align:center;}
+
+  .choiceRow{display:flex;gap:14px;}
+  .choiceBtn{
+    flex:1;background:var(--card);border:2px solid var(--border);border-radius:18px;
+    padding:18px 8px;font-family:inherit;font-weight:800;font-size:18px;color:var(--ink);
+    cursor:pointer;transition:transform .12s ease;
+  }
+  .choiceBtn:active{transform:scale(.95);}
+  .choiceBtn.correct{background:var(--ok-bg);border-color:var(--ok-ink);color:var(--ok-ink);}
+  .choiceBtn.wrong{background:var(--bad-bg);border-color:var(--bad-ink);color:var(--bad-ink);}
+
+  /* ---- compass game ---- */
+  .compassWrap{position:relative;width:250px;height:250px;margin:0 auto 18px;}
+  .compassCenter{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    font-size:54px;
+  }
+  .arrowBtn{
+    position:absolute;width:64px;height:64px;border-radius:18px;
+    background:var(--card);border:2px solid var(--border);
+    font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:transform .12s ease;
+  }
+  .arrowBtn:active{transform:scale(.9);}
+  .arrowBtn.correct{background:var(--ok-bg);border-color:var(--ok-ink);}
+  .arrowBtn.wrong{background:var(--bad-bg);border-color:var(--bad-ink);}
+  .arrow-top{top:0;left:50%;transform:translateX(-50%);}
+  .arrow-bottom{bottom:0;left:50%;transform:translateX(-50%);}
+  .arrow-right{top:50%;right:0;transform:translateY(-50%);}
+  .arrow-left{top:50%;left:0;transform:translateY(-50%);}
+
+  /* ---- completion ---- */
+  .doneWrap{text-align:center;padding:20px 0;}
+  .doneWrap .stars{font-size:44px;margin-bottom:10px;}
+  .doneWrap h2{font-size:22px;font-weight:900;color:var(--violet);margin:0 0 6px;}
+  .doneWrap p{color:var(--ink-soft);margin:0 0 20px;font-weight:600;}
+  .doneBtns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+  .doneBtns button{
+    font-family:inherit;font-weight:800;font-size:15px;border-radius:16px;
+    padding:12px 20px;cursor:pointer;border:2px solid var(--border);
+  }
+  .doneBtns .primary{background:var(--violet);color:#fff;border-color:var(--violet);}
+  .doneBtns .secondary{background:var(--card);color:var(--ink);}
+
+  /* ---- emotions ---- */
+  .bigEmojiWrap{display:flex;justify-content:center;margin-bottom:20px;}
+  .bigEmojiWrap .emo{font-size:96px;line-height:1;}
+
+  /* ---- sequencing / visual schedule ---- */
+  .seqHint{text-align:center;color:var(--ink-soft);font-weight:600;font-size:13px;margin:-8px 0 14px;}
+  .seqGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .seqCard{
+    position:relative;background:var(--card);border:2px solid var(--border);border-radius:18px;
+    padding:16px 8px 10px;text-align:center;cursor:pointer;transition:transform .12s ease;
+  }
+  .seqCard .semoji{font-size:34px;display:block;margin-bottom:6px;}
+  .seqCard .slabel{font-weight:700;font-size:13px;}
+  .seqCard.done{background:var(--ok-bg);border-color:var(--ok-ink);pointer-events:none;}
+  .seqCard.done .slabel{color:var(--ok-ink);}
+  .seqCard .badge{
+    position:absolute;top:-8px;right:-8px;background:var(--violet);color:#fff;
+    width:24px;height:24px;border-radius:50%;font-size:12px;font-weight:800;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .seqCard.shake{animation:shake .35s;}
+
+  /* ---- PECS choice cards ---- */
+  .needText{text-align:center;font-size:20px;font-weight:800;margin-bottom:16px;}
+  .pecsRow{display:flex;gap:12px;justify-content:center;}
+  .pecsCard{
+    flex:1;max-width:120px;background:var(--card);border:2px solid var(--border);border-radius:18px;
+    padding:14px 6px;text-align:center;cursor:pointer;transition:transform .12s ease;
+  }
+  .pecsCard:active{transform:scale(.95);}
+  .pecsCard .pemoji{font-size:40px;display:block;margin-bottom:6px;}
+  .pecsCard .plabel{font-weight:700;font-size:13px;}
+  .pecsCard.correct{background:var(--ok-bg);border-color:var(--ok-ink);}
+  .pecsCard.wrong{background:var(--bad-bg);border-color:var(--bad-ink);}
+
+  /* ---- categorize ---- */
+  .catLabel{text-align:center;font-weight:800;font-size:15px;color:var(--violet);margin-bottom:6px;}
+  .catEmojiWrap{display:flex;justify-content:center;margin:10px 0 22px;}
+  .catEmojiWrap .cemo{font-size:80px;}
+  .yesNoRow{display:flex;gap:14px;}
+  .yesNoBtn{
+    flex:1;background:var(--card);border:2px solid var(--border);border-radius:18px;
+    padding:18px 8px;font-family:inherit;font-weight:800;font-size:18px;color:var(--ink);
+    cursor:pointer;transition:transform .12s ease;
+  }
+  .yesNoBtn:active{transform:scale(.95);}
+  .yesNoBtn.correct{background:var(--ok-bg);border-color:var(--ok-ink);color:var(--ok-ink);}
+  .yesNoBtn.wrong{background:var(--bad-bg);border-color:var(--bad-ink);color:var(--bad-ink);}
+
+  .siteFooter{
+    text-align:center;margin-top:28px;padding-top:16px;
+    border-top:2px solid var(--border);
+  }
+  .siteFooter p{margin:0 0 8px;font-weight:800;font-size:14px;color:var(--ink);}
+  .siteFooter a{
+    display:inline-block;background:#25D366;color:#fff;text-decoration:none;
+    font-weight:800;font-size:14px;padding:10px 18px;border-radius:14px;
+  }
+  .siteFooter a:active{transform:scale(.97);}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header class="top">
+    <h1>🎈 عالم الأشكال والاتجاهات</h1>
+    <p>العب وتعلّم الأشكال والمفاهيم المكانية</p>
+  </header>
+
+  <main id="home">
+    <div class="card c1" data-game="match">
+      <div class="emoji">🧩</div>
+      <h3>طابق الأشكال</h3>
+      <p>اربط كل شكل بشكله المطابق</p>
+    </div>
+    <div class="card c2" data-game="name">
+      <div class="emoji">🔺</div>
+      <h3>سمّ الشكل</h3>
+      <p>اختر الاسم الصحيح للشكل</p>
+    </div>
+    <div class="card c3" data-game="position">
+      <div class="emoji">📦</div>
+      <h3>أين هو؟</h3>
+      <p>فوق - تحت - داخل - خارج وأكثر</p>
+    </div>
+    <div class="card c4" data-game="compass">
+      <div class="emoji">🧭</div>
+      <h3>الاتجاهات</h3>
+      <p>شمال - جنوب - شرق - غرب</p>
+    </div>
+
+    <div class="sectionLabel">أنشطة التواصل والمهارات الاجتماعية</div>
+
+    <div class="card c5" data-game="emotion">
+      <div class="emoji">😊</div>
+      <h3>ما هذا الشعور؟</h3>
+      <p>التعرّف على تعابير الوجه والمشاعر</p>
+    </div>
+    <div class="card c6" data-game="sequence">
+      <div class="emoji">📋</div>
+      <h3>رتّب خطوات اليوم</h3>
+      <p>جدول مرئي لترتيب روتين يومي</p>
+    </div>
+    <div class="card c7" data-game="choice">
+      <div class="emoji">🗣️</div>
+      <h3>ماذا أحتاج؟</h3>
+      <p>اختيار الصورة المناسبة للتعبير عن حاجة</p>
+    </div>
+    <div class="card c8" data-game="category">
+      <div class="emoji">🗂️</div>
+      <h3>صنّف الأشياء</h3>
+      <p>هل هذا الشيء ينتمي للفئة؟ نعم أو لا</p>
+    </div>
+  </main>
+
+  <section id="gameView">
+    <div class="gbar">
+      <button class="backBtn" id="backBtn">🏠 الرئيسية</button>
+      <div class="gtitle" id="gtitle"></div>
+      <div class="score" id="scoreBox">0 / 0</div>
+    </div>
+    <div class="progressWrap" id="progressWrap"></div>
+    <div id="gameContent"></div>
+    <div class="feedback" id="feedback"></div>
+  </section>
+
+  <footer class="siteFooter">
+    <p>للأخصائي / عبدالرحمن حمدان</p>
+    <a href="https://wa.me/201125663891" target="_blank" rel="noopener noreferrer">📱 تواصل عبر واتساب</a>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- shared data ----------
+  var COLORS = ['#FF6F5E','#2FC1B8','#FFC63C','#7C6FF0','#57C27D','#FF8FB1','#4D96FF','#F7A34B'];
+  var SHAPES = [
+    {id:'circle', name:'دائرة'},
+    {id:'square', name:'مربع'},
+    {id:'rectangle', name:'مستطيل'},
+    {id:'triangle', name:'مثلث'},
+    {id:'diamond', name:'معين'},
+    {id:'star', name:'نجمة'},
+    {id:'pentagon', name:'خماسي الأضلاع'},
+    {id:'hexagon', name:'سداسي الأضلاع'}
+  ];
+
+  function shapeInner(type){
+    switch(type){
+      case 'circle': return '<ellipse cx="50" cy="50" rx="40" ry="40"/>';
+      case 'square': return '<rect x="14" y="14" width="72" height="72" rx="6"/>';
+      case 'rectangle': return '<rect x="6" y="28" width="88" height="44" rx="6"/>';
+      case 'triangle': return '<polygon points="50,8 92,88 8,88"/>';
+      case 'diamond': return '<polygon points="50,6 94,50 50,94 6,50"/>';
+      case 'star': return '<polygon points="50,6 60.6,35.4 91.8,36.4 67.1,55.6 75.9,85.6 50,68 24.1,85.6 32.9,55.6 8.2,36.4 39.4,35.4"/>';
+      case 'pentagon': return '<polygon points="50,8 90,37 74.7,84 25.3,84 10,37"/>';
+      case 'hexagon': return '<polygon points="92,50 71,86.4 29,86.4 8,50 29,13.6 71,13.6"/>';
+    }
+  }
+  function shapeSVG(type,color,outlineOnly){
+    var fill = outlineOnly ? 'none' : color;
+    var stroke = outlineOnly ? '#2D2A4A' : '#2D2A4A';
+    var sw = outlineOnly ? 3 : 2.5;
+    return '<svg viewBox="0 0 100 100" style="fill:'+fill+';stroke:'+stroke+';stroke-width:'+sw+';stroke-linejoin:round;width:100%;height:100%;">'+shapeInner(type)+'</svg>';
+  }
+
+  function shuffle(arr){
+    var a = arr.slice();
+    for(var i=a.length-1;i>0;i--){
+      var j = Math.floor(Math.random()*(i+1));
+      var t=a[i]; a[i]=a[j]; a[j]=t;
+    }
+    return a;
+  }
+  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+  function pickN(arr,n){ return shuffle(arr).slice(0,n); }
+
+  // ---------- app state ----------
+  var state = { game:null, round:0, totalRounds:0, score:0, data:null };
+
+  var homeEl = document.getElementById('home');
+  var gameViewEl = document.getElementById('gameView');
+  var gtitleEl = document.getElementById('gtitle');
+  var scoreBoxEl = document.getElementById('scoreBox');
+  var progressWrapEl = document.getElementById('progressWrap');
+  var contentEl = document.getElementById('gameContent');
+  var feedbackEl = document.getElementById('feedback');
+
+  document.getElementById('backBtn').addEventListener('click', goHome);
+  Array.prototype.forEach.call(document.querySelectorAll('.card'), function(c){
+    c.addEventListener('click', function(){ startGame(c.getAttribute('data-game')); });
+  });
+
+  function goHome(){
+    homeEl.style.display = 'grid';
+    gameViewEl.style.display = 'none';
+  }
+
+  function showFeedback(msg, ok){
+    feedbackEl.textContent = msg;
+    feedbackEl.className = 'feedback show ' + (ok ? 'ok' : 'bad');
+    clearTimeout(showFeedback._t);
+    showFeedback._t = setTimeout(function(){
+      feedbackEl.className = 'feedback';
+    }, 1400);
+  }
+
+  function updateBars(){
+    scoreBoxEl.textContent = state.score + ' / ' + state.totalRounds;
+    progressWrapEl.innerHTML = '';
+    for(var i=0;i<state.totalRounds;i++){
+      var d = document.createElement('div');
+      d.className = 'dot' + (i < state.round ? ' done' : (i === state.round ? ' now' : ''));
+      progressWrapEl.appendChild(d);
+    }
+  }
+
+  var TITLES = {
+    match:'طابق الأشكال', name:'سمّ الشكل', position:'أين هو؟', compass:'الاتجاهات',
+    emotion:'ما هذا الشعور؟', sequence:'رتّب خطوات اليوم', choice:'ماذا أحتاج؟', category:'صنّف الأشياء'
+  };
+  var ROUND_COUNTS = {
+    match:3, name:8, position:8, compass:8,
+    emotion:8, sequence:4, choice:6, category:8
+  };
+
+  function startGame(game){
+    state.game = game;
+    state.round = 0;
+    state.score = 0;
+    state.totalRounds = ROUND_COUNTS[game];
+    gtitleEl.textContent = TITLES[game];
+    homeEl.style.display = 'none';
+    gameViewEl.style.display = 'block';
+    nextRound();
+  }
+
+  function nextRound(){
+    if(state.round >= state.totalRounds){
+      showDone();
+      return;
+    }
+    updateBars();
+    if(state.game === 'match') renderMatch();
+    else if(state.game === 'name') renderName();
+    else if(state.game === 'position') renderPosition();
+    else if(state.game === 'compass') renderCompass();
+    else if(state.game === 'emotion') renderEmotion();
+    else if(state.game === 'sequence') renderSequence();
+    else if(state.game === 'choice') renderChoice();
+    else if(state.game === 'category') renderCategory();
+  }
+
+  function showDone(){
+    var pct = state.totalRounds ? state.score/state.totalRounds : 0;
+    var stars = pct >= 0.9 ? '⭐⭐⭐' : pct >= 0.6 ? '⭐⭐' : '⭐';
+    progressWrapEl.innerHTML = '';
+    contentEl.innerHTML =
+      '<div class="doneWrap">' +
+        '<div class="stars">' + stars + '</div>' +
+        '<h2>أحسنت! لقد أنهيت اللعبة 🎉</h2>' +
+        '<p>النتيجة: ' + state.score + ' من ' + state.totalRounds + '</p>' +
+        '<div class="doneBtns">' +
+          '<button class="primary" id="playAgainBtn">🔁 العب مرة أخرى</button>' +
+          '<button class="secondary" id="homeBtn2">🏠 الرئيسية</button>' +
+        '</div>' +
+      '</div>';
+    feedbackEl.className = 'feedback';
+    document.getElementById('playAgainBtn').addEventListener('click', function(){ startGame(state.game); });
+    document.getElementById('homeBtn2').addEventListener('click', goHome);
+  }
+
+  // ================= GAME 1: matching =================
+  function renderMatch(){
+    var chosen = pickN(SHAPES, 4);
+    var colors = pickN(COLORS, 4);
+    var left = chosen.map(function(s,i){ return {id:'L'+i, type:s.id, color:colors[i], matched:false}; });
+    var right = shuffle(left.map(function(s,i){ return {id:'R'+i, type:s.type, matched:false}; }));
+
+    state.data = { left:left, right:right, selected:null, matchedCount:0 };
+
+    contentEl.innerHTML =
+      '<div class="prompt">اضغط على شكل من اليمين، ثم على <b>نفس الشكل</b> من اليسار</div>' +
+      '<div class="matchGrid">' +
+        '<div class="matchCol" id="leftCol"></div>' +
+        '<div class="matchCol" id="rightCol"></div>' +
+      '</div>';
+
+    var leftCol = document.getElementById('leftCol');
+    var rightCol = document.getElementById('rightCol');
+
+    left.forEach(function(s){
+      var b = document.createElement('div');
+      b.className = 'shapeBtn';
+      b.id = s.id;
+      b.innerHTML = shapeSVG(s.type, s.color, false);
+      b.addEventListener('click', function(){ onMatchClick('left', s.id); });
+      leftCol.appendChild(b);
+    });
+    right.forEach(function(s){
+      var b = document.createElement('div');
+      b.className = 'shapeBtn';
+      b.id = s.id;
+      b.innerHTML = shapeSVG(s.type, '#fff', true);
+      b.addEventListener('click', function(){ onMatchClick('right', s.id); });
+      rightCol.appendChild(b);
+    });
+  }
+
+  function onMatchClick(side, id){
+    var d = state.data;
+    var leftItem = d.left.find(function(x){return x.id===id;});
+    var rightItem = d.right.find(function(x){return x.id===id;});
+
+    if(side === 'right'){
+      if(rightItem.matched) return;
+      d.selected = id;
+      Array.prototype.forEach.call(document.querySelectorAll('#rightCol .shapeBtn'), function(el){
+        el.classList.remove('selected');
+      });
+      document.getElementById(id).classList.add('selected');
+      return;
+    }
+    // side === left
+    if(!d.selected){
+      showFeedback('اختر الشكل من اليمين أولاً', false);
+      return;
+    }
+    if(leftItem.matched) return;
+    var selRight = d.right.find(function(x){return x.id===d.selected;});
+    if(selRight.type === leftItem.type){
+      leftItem.matched = true;
+      selRight.matched = true;
+      document.getElementById(leftItem.id).classList.add('matched');
+      document.getElementById(selRight.id).classList.add('matched');
+      d.matchedCount++;
+      d.selected = null;
+      state.score++;
+      showFeedback('أحسنت! 🎉', true);
+      updateBars();
+      if(d.matchedCount === d.left.length){
+        state.round++;
+        setTimeout(nextRound, 700);
+      }
+    } else {
+      var btn = document.getElementById(leftItem.id);
+      btn.classList.add('shake');
+      setTimeout(function(){ btn.classList.remove('shake'); }, 350);
+      showFeedback('حاول مرة أخرى', false);
+    }
+  }
+
+  // ================= GAME 2: naming =================
+  function renderName(){
+    var correct = pick(SHAPES);
+    var color = pick(COLORS);
+    var wrongPool = SHAPES.filter(function(s){ return s.id !== correct.id; });
+    var options = shuffle([correct].concat(pickN(wrongPool,3)));
+
+    contentEl.innerHTML =
+      '<div class="prompt">ما اسم هذا الشكل؟</div>' +
+      '<div class="bigShapeWrap">' + shapeSVG(correct.id, color, false) + '</div>' +
+      '<div class="optGrid" id="optGrid"></div>';
+
+    var grid = document.getElementById('optGrid');
+    options.forEach(function(opt){
+      var b = document.createElement('button');
+      b.className = 'optBtn';
+      b.textContent = opt.name;
+      b.addEventListener('click', function(){
+        if(opt.id === correct.id){
+          b.classList.add('correct');
+          state.score++;
+          showFeedback('صحيح! 🎉', true);
+          state.round++;
+          updateBars();
+          setTimeout(nextRound, 700);
+        } else {
+          b.classList.add('wrong');
+          showFeedback('حاول مرة أخرى', false);
+        }
+      });
+      grid.appendChild(b);
+    });
+  }
+
+  // ================= GAME 3: position concepts =================
+  var POSITION_SCENES = [
+    { anchor:'🪑', mover:'🐱', moverLabel:'القطة', words:['فوق','تحت'],
+      styles:[ {top:'8px',left:'50%',marginLeft:'-22px'}, {bottom:'8px',left:'50%',marginLeft:'-22px'} ],
+      anchorStyle:{top:'50%',left:'50%',marginTop:'-28px',marginLeft:'-28px'} },
+    { anchor:'📦', mover:'🦜', moverLabel:'الطائر', words:['داخل','خارج'],
+      styles:[ {top:'50%',left:'50%',marginTop:'-22px',marginLeft:'-22px'}, {top:'20px',left:'20px'} ],
+      anchorStyle:{top:'50%',left:'50%',marginTop:'-28px',marginLeft:'-28px'} },
+    { anchor:'🏠', mover:'🐶', moverLabel:'الكلب', words:['أمام','خلف'],
+      styles:[ {bottom:'10px',left:'50%',marginLeft:'-22px'}, {top:'12px',left:'50%',marginLeft:'-22px'} ],
+      anchorStyle:{top:'50%',left:'50%',marginTop:'-28px',marginLeft:'-28px'} },
+    { anchor:'🧶', mover:'🐱', moverLabel:'القطة', words:['يمين','يسار'],
+      styles:[ {top:'50%',right:'20px',marginTop:'-22px'}, {top:'50%',left:'20px',marginTop:'-22px'} ],
+      anchorStyle:{top:'50%',left:'50%',marginTop:'-28px',marginLeft:'-28px'} },
+    { anchor:'🧒', mover:'⚽', moverLabel:'الكرة', words:['قريبة','بعيدة'],
+      styles:[ {top:'50%',right:'40%',marginTop:'-16px',fontSize:'34px'}, {top:'50%',right:'10px',marginTop:'-14px',fontSize:'22px'} ],
+      anchorStyle:{top:'50%',left:'15%',marginTop:'-28px'} }
+  ];
+
+  function renderPosition(){
+    var scene = pick(POSITION_SCENES);
+    var correctIdx = Math.floor(Math.random()*2);
+    var opts = shuffle([
+      {label:scene.words[0], idx:0},
+      {label:scene.words[1], idx:1}
+    ]);
+
+    contentEl.innerHTML =
+      '<div class="prompt">أين <b>' + scene.moverLabel + '</b>؟</div>' +
+      '<div class="scene" id="sceneBox"></div>' +
+      '<div class="choiceRow" id="choiceRow"></div>';
+
+    var sceneBox = document.getElementById('sceneBox');
+    var anchorEl = document.createElement('div');
+    anchorEl.className = 'anchor';
+    anchorEl.textContent = scene.anchor;
+    Object.assign(anchorEl.style, scene.anchorStyle);
+    sceneBox.appendChild(anchorEl);
+
+    var moverEl = document.createElement('div');
+    moverEl.className = 'mover';
+    moverEl.textContent = scene.mover;
+    Object.assign(moverEl.style, scene.styles[correctIdx]);
+    sceneBox.appendChild(moverEl);
+
+    var row = document.getElementById('choiceRow');
+    opts.forEach(function(o){
+      var b = document.createElement('button');
+      b.className = 'choiceBtn';
+      b.textContent = o.label;
+      b.addEventListener('click', function(){
+        if(o.idx === correctIdx){
+          b.classList.add('correct');
+          state.score++;
+          showFeedback('صحيح! 🎉', true);
+          state.round++;
+          updateBars();
+          setTimeout(nextRound, 700);
+        } else {
+          b.classList.add('wrong');
+          showFeedback('حاول مرة أخرى', false);
+        }
+      });
+      row.appendChild(b);
+    });
+  }
+
+  // ================= GAME 4: compass =================
+  var DIRS = [
+    {key:'top', label:'الشمال'},
+    {key:'bottom', label:'الجنوب'},
+    {key:'right', label:'الشرق'},
+    {key:'left', label:'الغرب'}
+  ];
+  var ARROW_ICON = { top:'⬆️', bottom:'⬇️', right:'➡️', left:'⬅️' };
+
+  function renderCompass(){
+    var target = pick(DIRS);
+    contentEl.innerHTML =
+      '<div class="prompt">أشر إلى جهة <b>' + target.label + '</b></div>' +
+      '<div class="compassWrap" id="compassWrap"><div class="compassCenter">🧒</div></div>';
+
+    var wrap = document.getElementById('compassWrap');
+    DIRS.forEach(function(d){
+      var b = document.createElement('button');
+      b.className = 'arrowBtn arrow-' + d.key;
+      b.textContent = ARROW_ICON[d.key];
+      b.addEventListener('click', function(){
+        if(d.key === target.key){
+          b.classList.add('correct');
+          state.score++;
+          showFeedback('صحيح! 🎉', true);
+          state.round++;
+          updateBars();
+          setTimeout(nextRound, 700);
+        } else {
+          b.classList.add('wrong');
+          showFeedback('حاول مرة أخرى', false);
+        }
+      });
+      wrap.appendChild(b);
+    });
+  }
+
+  // ================= GAME 5: emotions =================
+  var EMOTIONS = [
+    {emoji:'😊', label:'سعيد'},
+    {emoji:'😢', label:'حزين'},
+    {emoji:'😠', label:'غاضب'},
+    {emoji:'😨', label:'خائف'},
+    {emoji:'😲', label:'متفاجئ'},
+    {emoji:'😌', label:'هادئ'},
+    {emoji:'🥱', label:'متعب'},
+    {emoji:'😋', label:'جوعان'}
+  ];
+
+  function renderEmotion(){
+    var correct = pick(EMOTIONS);
+    var wrongPool = EMOTIONS.filter(function(e){ return e.label !== correct.label; });
+    var options = shuffle([correct].concat(pickN(wrongPool,3)));
+
+    contentEl.innerHTML =
+      '<div class="prompt">ما هذا الشعور؟</div>' +
+      '<div class="bigEmojiWrap"><span class="emo">' + correct.emoji + '</span></div>' +
+      '<div class="optGrid" id="optGrid"></div>';
+
+    var grid = document.getElementById('optGrid');
+    options.forEach(function(opt){
+      var b = document.createElement('button');
+      b.className = 'optBtn';
+      b.textContent = opt.label;
+      b.addEventListener('click', function(){
+        if(opt.label === correct.label){
+          b.classList.add('correct');
+          state.score++;
+          showFeedback('صحيح! 🎉', true);
+          state.round++;
+          updateBars();
+          setTimeout(nextRound, 700);
+        } else {
+          b.classList.add('wrong');
+          showFeedback('حاول مرة أخرى', false);
+        }
+      });
+      grid.appendChild(b);
+    });
+  }
+
+  // ================= GAME 6: sequencing / visual schedule =================
+  var ROUTINES = [
+    { title:'الصباح', steps:[
+      {emoji:'🛏️', label:'استيقظ'},
+      {emoji:'🪥', label:'غسل الأسنان'},
+      {emoji:'🍳', label:'فطار'},
+      {emoji:'🎒', label:'المدرسة'}
+    ]},
+    { title:'وقت الطعام', steps:[
+      {emoji:'🧼', label:'غسل اليدين'},
+      {emoji:'🍽️', label:'الأكل'},
+      {emoji:'🧽', label:'غسل الصحن'}
+    ]},
+    { title:'قبل النوم', steps:[
+      {emoji:'🛁', label:'استحمام'},
+      {emoji:'📖', label:'قصة'},
+      {emoji:'🛏️', label:'نوم'}
+    ]},
+    { title:'وقت اللعب', steps:[
+      {emoji:'🧸', label:'اختيار لعبة'},
+      {emoji:'🎮', label:'اللعب'},
+      {emoji:'🧹', label:'ترتيب الألعاب'}
+    ]}
+  ];
+
+  function renderSequence(){
+    var routine = pick(ROUTINES);
+    var order = shuffle(routine.steps.map(function(s,i){ return {step:s, correctIdx:i}; }));
+    state.data = { nextIdx:0, total:routine.steps.length };
+
+    contentEl.innerHTML =
+      '<div class="prompt">رتّب خطوات <b>' + routine.title + '</b> بالترتيب الصحيح</div>' +
+      '<div class="seqHint">اضغط على الخطوة الأولى، ثم التي تليها</div>' +
+      '<div class="seqGrid" id="seqGrid"></div>';
+
+    var grid = document.getElementById('seqGrid');
+    order.forEach(function(o,pos){
+      var b = document.createElement('div');
+      b.className = 'seqCard';
+      b.id = 'seq'+pos;
+      b.innerHTML = '<span class="semoji">'+o.step.emoji+'</span><span class="slabel">'+o.step.label+'</span>';
+      b.addEventListener('click', function(){ onSeqClick(b, o.correctIdx); });
+      grid.appendChild(b);
+    });
+  }
+
+  function onSeqClick(btn, correctIdx){
+    var d = state.data;
+    if(correctIdx === d.nextIdx){
+      d.nextIdx++;
+      var badge = document.createElement('div');
+      badge.className = 'badge';
+      badge.textContent = d.nextIdx;
+      btn.appendChild(badge);
+      btn.classList.add('done');
+      showFeedback('أحسنت! 🎉', true);
+      if(d.nextIdx === d.total){
+        state.score++;
+        state.round++;
+        updateBars();
+        setTimeout(nextRound, 900);
+      }
+    } else {
+      btn.classList.add('shake');
+      setTimeout(function(){ btn.classList.remove('shake'); }, 350);
+      showFeedback('جرّب الخطوة التالية', false);
+    }
+  }
+
+  // ================= GAME 7: PECS-style choice making =================
+  var WRONG_POOL = [
+    {emoji:'⚽', label:'كرة'}, {emoji:'📖', label:'كتاب'}, {emoji:'🎨', label:'ألوان'},
+    {emoji:'🚗', label:'سيارة'}, {emoji:'🕶️', label:'نظارة'}, {emoji:'🎈', label:'بالون'}
+  ];
+  var NEEDS = [
+    { text:'أنا عطشان 🥵', correct:{emoji:'💧', label:'ماء'} },
+    { text:'أنا جوعان 😋', correct:{emoji:'🍎', label:'طعام'} },
+    { text:'أنا تعبان 🥱', correct:{emoji:'🛏️', label:'سرير'} },
+    { text:'أنا حزين 😢', correct:{emoji:'🤗', label:'حضن'} },
+    { text:'أريد أن ألعب 😄', correct:{emoji:'🧸', label:'لعبة'} },
+    { text:'أشعر بالبرد 🥶', correct:{emoji:'🧥', label:'سترة'} }
+  ];
+
+  function renderChoice(){
+    var need = pick(NEEDS);
+    var wrongs = pickN(WRONG_POOL.filter(function(w){ return w.label !== need.correct.label; }), 2);
+    var options = shuffle([need.correct].concat(wrongs));
+
+    contentEl.innerHTML =
+      '<div class="prompt">ماذا يحتاج؟</div>' +
+      '<div class="needText">' + need.text + '</div>' +
+      '<div class="pecsRow" id="pecsRow"></div>';
+
+    var row = document.getElementById('pecsRow');
+    options.forEach(function(opt){
+      var b = document.createElement('div');
+      b.className = 'pecsCard';
+      b.innerHTML = '<span class="pemoji">'+opt.emoji+'</span><span class="plabel">'+opt.label+'</span>';
+      b.addEventListener('click', function(){
+        if(opt.label === need.correct.label){
+          b.classList.add('correct');
+          state.score++;
+          showFeedback('صحيح! 🎉', true);
+          state.round++;
+          updateBars();
+          setTimeout(nextRound, 700);
+        } else {
+          b.classList.add('wrong');
+          showFeedback('حاول مرة أخرى', false);
+        }
+      });
+      row.appendChild(b);
+    });
+  }
+
+  // ================= GAME 8: categorize (yes/no) =================
+  var CATEGORY_SETS = [
+    { category:'فواكه', items:[
+      {emoji:'🍎',belongs:true},{emoji:'🍌',belongs:true},{emoji:'🍇',belongs:true},{emoji:'🍊',belongs:true},
+      {emoji:'🚗',belongs:false},{emoji:'⚽',belongs:false},{emoji:'👕',belongs:false},{emoji:'📚',belongs:false}
+    ]},
+    { category:'حيوانات', items:[
+      {emoji:'🐶',belongs:true},{emoji:'🐱',belongs:true},{emoji:'🐮',belongs:true},{emoji:'🐰',belongs:true},
+      {emoji:'🍕',belongs:false},{emoji:'🖍️',belongs:false},{emoji:'🚲',belongs:false},{emoji:'🎈',belongs:false}
+    ]},
+    { category:'ملابس', items:[
+      {emoji:'👕',belongs:true},{emoji:'👖',belongs:true},{emoji:'🧦',belongs:true},{emoji:'🧥',belongs:true},
+      {emoji:'🍉',belongs:false},{emoji:'🐟',belongs:false},{emoji:'🚕',belongs:false},{emoji:'🌳',belongs:false}
+    ]}
+  ];
+
+  function renderCategory(){
+    var set = pick(CATEGORY_SETS);
+    var item = pick(set.items);
+
+    contentEl.innerHTML =
+      '<div class="prompt">هل هذا الشيء من فئة <b>' + set.category + '</b>؟</div>' +
+      '<div class="catEmojiWrap"><span class="cemo">' + item.emoji + '</span></div>' +
+      '<div class="yesNoRow" id="yesNoRow"></div>';
+
+    var row = document.getElementById('yesNoRow');
+    [ {label:'نعم ✅', val:true}, {label:'لا ❌', val:false} ].forEach(function(o){
+      var b = document.createElement('button');
+      b.className = 'yesNoBtn';
+      b.textContent = o.label;
+      b.addEventListener('click', function(){
+        if(o.val === item.belongs){
+          b.classList.add('correct');
+          state.score++;
+          showFeedback('صحيح! 🎉', true);
+          state.round++;
+          updateBars();
+          setTimeout(nextRound, 700);
+        } else {
+          b.classList.add('wrong');
+          showFeedback('حاول مرة أخرى', false);
+        }
+      });
+      row.appendChild(b);
+    });
+  }
+
+})();
+</script>
+</body>
+</html>
